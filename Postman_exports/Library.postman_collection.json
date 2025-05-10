@@ -1,0 +1,4371 @@
+{
+	"info": {
+		"_postman_id": "ea01f9dd-577c-4960-9191-c47665b7bf5e",
+		"name": "Library",
+		"description": "## **API Collection Overview**\n\nThis API allows you to manage **Books**, **Households**, **Users**, and **Wishlists** with basic CRUD operations (Create, Read, Update, Delete). Each operation requires a valid `g-token` for authentication.\n\n## 🌐 Base URL\n\n```\nhttp://localhost:3000\n\n ```\n\n## **Books API**\n\n- **POST**: Create a book with title, author, and year.\n    \n- **GET**: Retrieve a book by its `id`.\n    \n- **PUT**: Update book details.\n    \n- **DELETE**: Delete a book by `id`.\n    \n\n---\n\n## **Households API**\n\n- **POST**: Create a household with a name.\n    \n- **GET**: Retrieve a household by its `id`.\n    \n- **PUT**: Update the household's name.\n    \n- **DELETE**: Delete a household by `id`.\n    \n\n---\n\n## **Users API**\n\n- **POST**: Create a user with `firstName`, `lastName`, and `email`.\n    \n- **GET**: Retrieve a user by `id`.\n    \n- **PUT**: Update user details.\n    \n- **DELETE**: Delete a user by `id`.\n    \n\n---\n\n## **Wishlists API**\n\n- **POST**: Create a wishlist with a name and list of books.\n    \n- **GET**: Retrieve a wishlist by `id`.\n    \n- **PUT**: Update wishlist details (name or books).\n    \n- **DELETE**: Delete a wishlist by `id`.\n    \n\n---\n\n### **Common Response Codes**\n\n- **200 OK**: Success.\n    \n- **201 CREATED**: Resource created.\n    \n- **204 NO CONTENT**: Deletion successful (no content returned).\n    \n- **404 NOT FOUND**: Resource not found.\n    \n- **500 INTERNAL SERVER ERROR**: Server error.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32285312",
+		"_collection_link": "https://www.postman.com/dgdgdghhh/workspace/libarary/collection/32285312-ea01f9dd-577c-4960-9191-c47665b7bf5e?action=share&source=collection_link&creator=32285312"
+	},
+	"item": [
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "Create Book",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// 📖 Generate and set random book title\r",
+									"let bookTitle = pm.variables.replaceIn('{{$randomStreetName}}');\r",
+									"pm.collectionVariables.set('bookTitle', bookTitle);\r",
+									"console.log(\"Generated bookTitle:\", bookTitle);\r",
+									"\r",
+									"// ✍️ Generate and set random author name\r",
+									"let bookAuthor = pm.variables.replaceIn('{{$randomFullName}}');\r",
+									"pm.collectionVariables.set('bookAuthor', bookAuthor);\r",
+									"console.log(\"Generated bookAuthor:\", bookAuthor);\r",
+									"\r",
+									"// 🔢 Function to generate a random number string of specified length\r",
+									"function generateRandomNumber(length = 10) {\r",
+									"  let result = '';\r",
+									"  for (let i = 0; i < length; i++) {\r",
+									"    result += Math.floor(Math.random() * 10);\r",
+									"  }\r",
+									"  return result;\r",
+									"}\r",
+									"\r",
+									"// 📘 Generate and set random ISBN\r",
+									"let bookIsbn = generateRandomNumber(10);\r",
+									"pm.collectionVariables.set('bookIsbn', bookIsbn);\r",
+									"console.log(\"Generated bookIsbn:\", bookIsbn);\r",
+									"\r",
+									"// 📅 Function to generate a random date between two dates\r",
+									"function generateRandomDate(start = new Date(2000, 0, 1), end = new Date()) {\r",
+									"  const timestamp = start.getTime() + Math.random() * (end.getTime() - start.getTime());\r",
+									"  return new Date(timestamp).toISOString().split('T')[0]; // Format: YYYY-MM-DD\r",
+									"}\r",
+									"\r",
+									"// 🗓️ Generate and set random release date\r",
+									"let bookReleaseDate = generateRandomDate();\r",
+									"pm.collectionVariables.set('bookReleaseDate', bookReleaseDate);\r",
+									"console.log(\"Generated bookReleaseDate:\", bookReleaseDate);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Store book ID\r",
+									"var book_id = pm.response.json().id;\r",
+									"pm.collectionVariables.set(\"book_id\", book_id);\r",
+									"\r",
+									"// ✅ Store response data in variables\r",
+									"let book = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field for easier access\r",
+									"let bookTitle = book.title;\r",
+									"let bookAuthor = book.author;\r",
+									"let bookIsbn = book.isbn;\r",
+									"let bookReleaseDate = book.releaseDate;\r",
+									"\r",
+									"// ✅ Retrieve expected values from collection variables\r",
+									"let expectedBookTitle = pm.collectionVariables.get(\"bookTitle\");\r",
+									"let expectedBookAuthor = pm.collectionVariables.get(\"bookAuthor\");\r",
+									"let expectedBookIsbn = pm.collectionVariables.get(\"bookIsbn\");\r",
+									"let expectedBookReleaseDate = pm.collectionVariables.get(\"bookReleaseDate\");\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"title\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"author\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"isbn\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"releaseDate\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date\"\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"title\", \"author\", \"isbn\", \"releaseDate\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Create Book ( TC01 ) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Title Tests\r",
+									"pm.test(\"Create Book ( TC02 ) _ Book title matches generated value\", () => pm.expect(bookTitle).to.eql(expectedBookTitle));\r",
+									"\r",
+									"// 🧪 Author Tests\r",
+									"pm.test(\"Create Book ( TC03 ) _ Book author matches generated value\", () => pm.expect(bookAuthor).to.eql(expectedBookAuthor));\r",
+									"\r",
+									"// 🧪 ISBN Tests\r",
+									"pm.test(\"Create Book ( TC04 ) _ Book ISBN matches generated value\", () => pm.expect(bookIsbn).to.eql(expectedBookIsbn));\r",
+									"\r",
+									"// 🧪 Release Date Tests\r",
+									"pm.test(\"Create Book ( TC05 ) _ Book release date matches generated value\", () => pm.expect(bookReleaseDate).to.eql(expectedBookReleaseDate));\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Create Book ( TC06 ) _ Status code is 201\", () => pm.response.to.have.status(201));\r",
+									"pm.test(\"Create Book ( TC07 ) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"{{bookTitle}}\",\n  \"author\": \"{{bookAuthor}}\",\n  \"isbn\": \"{{bookIsbn}}\",\n  \"releaseDate\": \"{{bookReleaseDate}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "**Description**: Create a new book entry in the system.\n\n#### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| Content-Type | application/json |\n| g-token | ROM831ESV |\n\n### 📤 Request Body (JSON)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `title` | string | The title of the book |\n| `author` | string | The author's full name |\n| `isbn` | string | A 10-digit ISBN number |\n| `releaseDate` | string | Date of release in format `YYYY-MM-DD` |\n\n- `bookTitle`, `bookAuthor`, `bookIsbn`, and `bookReleaseDate` are dynamically generated using pre-request scripts.\n    \n\n#### 🧪 Tests Performed:\n\n- `TC01`: Response matches expected JSON schema.\n    \n- `TC02`: Book title matches generated value.\n    \n- `TC03`: Book author matches generated value.\n    \n- `TC04`: Book ISBN matches generated value.\n    \n- `TC05`: Book release date matches generated value.\n    \n- `TC06`: Status code is `201 Created`.\n    \n- `TC07`: Response time is < 200ms."
+					},
+					"response": [
+						{
+							"name": "Create Book",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Erick Spur\",\n  \"author\": \"Suzanne Hartmann DVM\",\n  \"isbn\": \"9646355055\",\n  \"releaseDate\": \"2015-07-21\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/books",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"books"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "215"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d7-g/8SEW4gHY9ysnq8j+Ladg8JArw\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:03:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"title\": \"Erick Spur\",\n    \"author\": \"Suzanne Hartmann DVM\",\n    \"isbn\": \"9646355055\",\n    \"releaseDate\": \"2015-07-21\",\n    \"createdAt\": \"2025-05-08T22:03:49.413Z\",\n    \"updatedAt\": \"2025-05-08T22:03:49.413Z\",\n    \"id\": 63\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Book After Creation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store response data in variables\r",
+									"let book = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field for easier access\r",
+									"let bookTitle = book.title;\r",
+									"let bookAuthor = book.author;\r",
+									"let bookIsbn = book.isbn;\r",
+									"let bookReleaseDate = book.releaseDate;\r",
+									"\r",
+									"// ✅ Retrieve expected values from collection variables\r",
+									"let expectedBookTitle = pm.collectionVariables.get(\"bookTitle\");\r",
+									"let expectedBookAuthor = pm.collectionVariables.get(\"bookAuthor\");\r",
+									"let expectedBookIsbn = pm.collectionVariables.get(\"bookIsbn\");\r",
+									"let expectedBookReleaseDate = pm.collectionVariables.get(\"bookReleaseDate\");\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"title\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"author\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"isbn\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"releaseDate\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date\"\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"title\", \"author\", \"isbn\", \"releaseDate\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Get Book After Creation ( TC01 ) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Title Tests\r",
+									"pm.test(\"Get Book After Creation ( TC02 ) _ Book title matches generated value\", () => pm.expect(bookTitle).to.eql(expectedBookTitle));\r",
+									"\r",
+									"// 🧪 Author Tests\r",
+									"pm.test(\"Get Book After Creation ( TC03 ) _ Book author matches generated value\", () => pm.expect(bookAuthor).to.eql(expectedBookAuthor));\r",
+									"\r",
+									"// 🧪 ISBN Tests\r",
+									"pm.test(\"Get Book After Creation ( TC04 ) _ Book ISBN matches generated value\", () => pm.expect(bookIsbn).to.eql(expectedBookIsbn));\r",
+									"\r",
+									"// 🧪 Release Date Tests\r",
+									"pm.test(\"Get Book After Creation ( TC05 ) _ Book release date matches generated value\", () => pm.expect(bookReleaseDate).to.eql(expectedBookReleaseDate));\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Get Book After Creation ( TC06 ) _ Status code is 200\", () => pm.response.to.have.status(200));\r",
+									"pm.test(\"Get Book After Creation ( TC07 ) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{book_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						},
+						"description": "### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| Content-Type | application/json |\n| g-token | ROM831ESV |\n\n---\n\n### 📤 Request Parameters (Path)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `bookId` | integer | Unique identifier of the book |\n\n> \n\n`bookId` is dynamically retrieved from a previous request or test script.\n\n \n  \n\n---\n\n### 🧪 Tests Performed:\n\n- **TC01:** Status code is **200 OK**.\n    \n- **TC02:** Book ID matches requested value.\n    \n- **TC03:** Title, author, ISBN, and release date are returned.\n    \n- **TC04:** Response matches expected JSON schema.\n    \n- **TC05:** Response time is **< 200ms**."
+					},
+					"response": [
+						{
+							"name": "Get Book After Creation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/books/{{book_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"{{book_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "215"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d7-g/8SEW4gHY9ysnq8j+Ladg8JArw\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:04:29 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"title\": \"Ritchie Extension\",\n    \"author\": \"Ian Bosco MD\",\n    \"isbn\": \"5883648728\",\n    \"releaseDate\": \"2002-11-11\",\n    \"createdAt\": \"2025-05-08T22:03:49.413Z\",\n    \"updatedAt\": \"2025-05-08T22:03:49.413Z\",\n    \"id\": 63\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Book (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store updated response data in variables\r",
+									"let book = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field from the response\r",
+									"let bookTitle = book.title;\r",
+									"let bookAuthor = book.author;\r",
+									"let bookIsbn = book.isbn;\r",
+									"let bookReleaseDate = book.releaseDate;\r",
+									"\r",
+									"// ✅ Retrieve expected updated values from collection variables\r",
+									"let expectedBookTitle = pm.collectionVariables.get(\"bookTitleUpdate\");\r",
+									"let expectedBookAuthor = pm.collectionVariables.get(\"bookAuthorUpdate\");\r",
+									"let expectedBookIsbn = pm.collectionVariables.get(\"bookIsbnUpdate\");\r",
+									"let expectedBookReleaseDate = pm.collectionVariables.get(\"bookReleaseDateUpdate\");\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"title\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"author\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"isbn\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"releaseDate\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date\"\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"title\", \"author\", \"isbn\", \"releaseDate\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Update Book (PUT) ( TC01 ) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Title Tests\r",
+									"pm.test(\"Update Book (PUT) ( TC02 ) _ Book title matches updated value\", () => pm.expect(bookTitle).to.eql(expectedBookTitle));\r",
+									"\r",
+									"// 🧪 Author Tests\r",
+									"pm.test(\"Update Book (PUT) ( TC03 ) _ Book author matches updated value\", () => pm.expect(bookAuthor).to.eql(expectedBookAuthor));\r",
+									"\r",
+									"// 🧪 ISBN Tests\r",
+									"pm.test(\"Update Book (PUT) ( TC04 ) _ Book ISBN matches updated value\", () => pm.expect(bookIsbn).to.eql(expectedBookIsbn));\r",
+									"\r",
+									"// 🧪 Release Date Tests\r",
+									"pm.test(\"Update Book (PUT) ( TC05 ) _ Book release date matches updated value\", () => pm.expect(bookReleaseDate).to.eql(expectedBookReleaseDate));\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Update Book (PUT) ( TC06 ) _ Status code is 200\", () => pm.response.to.have.status(200));\r",
+									"pm.test(\"Update Book (PUT) ( TC07 ) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate and set random updated book title\r",
+									"let bookTitleUpdate = pm.variables.replaceIn('{{$randomStreetName}}');\r",
+									"pm.collectionVariables.set('bookTitleUpdate', bookTitleUpdate);\r",
+									"\r",
+									"// Generate and set random updated book author\r",
+									"let bookAuthorUpdate = pm.variables.replaceIn('{{$randomFullName}}');\r",
+									"pm.collectionVariables.set('bookAuthorUpdate', bookAuthorUpdate);\r",
+									"\r",
+									"// Function to generate a random number string of specified length\r",
+									"function generateRandomNumber(length = 10) {\r",
+									"  let result = '';\r",
+									"  for (let i = 0; i < length; i++) {\r",
+									"    result += Math.floor(Math.random() * 10); // Generate a random digit (0-9)\r",
+									"  }\r",
+									"  return result;\r",
+									"}\r",
+									"\r",
+									"// Generate and set random updated book ISBN\r",
+									"let bookIsbnUpdate = generateRandomNumber(10);\r",
+									"pm.collectionVariables.set('bookIsbnUpdate', bookIsbnUpdate);\r",
+									"\r",
+									"// Function to generate a random date between two dates\r",
+									"function generateRandomDate(start = new Date(2000, 0, 1), end = new Date()) {\r",
+									"  const timestamp = start.getTime() + Math.random() * (end.getTime() - start.getTime());\r",
+									"  return new Date(timestamp).toISOString().split('T')[0]; // Format: YYYY-MM-DD\r",
+									"}\r",
+									"\r",
+									"// Generate and set random updated book release date\r",
+									"let bookReleaseDateUpdate = generateRandomDate();\r",
+									"pm.collectionVariables.set('bookReleaseDateUpdate', bookReleaseDateUpdate);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"{{bookTitleUpdate}}\",\n  \"author\": \"{{bookAuthorUpdate}}\",\n  \"isbn\": \"{{bookIsbnUpdate}}\",\n  \"releaseDate\": \"{{bookReleaseDateUpdate}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books/{{book_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						},
+						"description": "**Description:** Update the details of an existing book using its unique ID.\n\n---\n\n### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| Content-Type | application/json |\n| g-token | ROM831ESV |\n\n---\n\n### 📤 Request Parameters (Path)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `bookId` | integer | Unique identifier of the book |\n\n---\n\n### 📤 Request Body (JSON)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `title` | string | The updated title of the book |\n| `author` | string | The updated author's full name |\n| `isbn` | string | The updated 10-digit ISBN number |\n| `releaseDate` | string | The updated release date in `YYYY-MM-DD` |\n\n> \n\n`bookTitle`, `bookAuthor`, `bookIsbn`, and `bookReleaseDate` are dynamically generated using pre-request scripts.\n\n \n  \n\n### 🧪 Tests Performed:\n\n- **TC01:** Status code is **200 OK**.\n    \n- **TC02:** Book title matches updated value.\n    \n- **TC03:** Book author matches updated value.\n    \n- **TC04:** Book ISBN matches updated value.\n    \n- **TC05:** Book release date matches updated value.\n    \n- **TC06:** Response matches expected JSON schema.\n    \n- **TC07:** Response time is **< 200ms**."
+					},
+					"response": [
+						{
+							"name": "Update Book (PUT)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Mante Port\",\n  \"author\": \"Phyllis Paucek II\",\n  \"isbn\": \"5862860407\",\n  \"releaseDate\": \"2005-11-27\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/books/63",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"books",
+										"63"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "207"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"cf-c1yTjbWF1lWMSUuwsfu7J+eUTTI\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:04:45 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"title\": \"Mante Port\",\n    \"author\": \"Phyllis Paucek II\",\n    \"isbn\": \"5862860407\",\n    \"releaseDate\": \"2005-11-27\",\n    \"createdAt\": \"2025-05-08T22:03:49.413Z\",\n    \"updatedAt\": \"2025-05-08T22:04:45.895Z\",\n    \"id\": 63\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Book After Update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store book ID (retrieved after update)\r",
+									"let book_id = pm.collectionVariables.get(\"book_id\");\r",
+									"\r",
+									"// 🧪 Retrieve the response data\r",
+									"let book = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field for easier access\r",
+									"let bookTitle = book.title;\r",
+									"let bookAuthor = book.author;\r",
+									"let bookIsbn = book.isbn;\r",
+									"let bookReleaseDate = book.releaseDate;\r",
+									"\r",
+									"// ✅ Retrieve expected updated values from collection variables\r",
+									"let expectedBookTitle = pm.collectionVariables.get(\"bookTitleUpdate\");\r",
+									"let expectedBookAuthor = pm.collectionVariables.get(\"bookAuthorUpdate\");\r",
+									"let expectedBookIsbn = pm.collectionVariables.get(\"bookIsbnUpdate\");\r",
+									"let expectedBookReleaseDate = pm.collectionVariables.get(\"bookReleaseDateUpdate\");\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"title\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"author\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"isbn\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"releaseDate\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date\"\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"title\", \"author\", \"isbn\", \"releaseDate\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Get Book After Update (TC01) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Title Tests\r",
+									"pm.test(\"Get Book After Update (TC02) _ Book title matches updated value\", () => pm.expect(bookTitle).to.eql(expectedBookTitle));\r",
+									"\r",
+									"// 🧪 Author Tests\r",
+									"pm.test(\"Get Book After Update (TC03) _ Book author matches updated value\", () => pm.expect(bookAuthor).to.eql(expectedBookAuthor));\r",
+									"\r",
+									"// 🧪 ISBN Tests\r",
+									"pm.test(\"Get Book After Update (TC04) _ Book ISBN matches updated value\", () => pm.expect(bookIsbn).to.eql(expectedBookIsbn));\r",
+									"\r",
+									"// 🧪 Release Date Tests\r",
+									"pm.test(\"Get Book After Update (TC05) _ Book release date matches updated value\", () => pm.expect(bookReleaseDate).to.eql(expectedBookReleaseDate));\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Get Book After Update (TC06) _ Status code is 200\", () => pm.response.to.have.status(200));\r",
+									"pm.test(\"Get Book After Update (TC07) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{book_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						},
+						"description": "**Description:** Retrieve the updated details of a book by its unique ID.\n\n---\n\n### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| `Content-Type` | `application/json` |\n| `g-token` | `ROM831ESV` |\n\n---\n\n### 📤 Request Parameters (Path)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `book_id` | integer | The unique identifier of the book |\n\n---\n\n### ✅ Response Body (200 OK)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `id` | integer | Unique identifier of the book |\n| `title` | string | Title of the book |\n| `author` | string | Author of the book |\n| `isbn` | string | 10-digit ISBN number |\n| `releaseDate` | string | Release date in `YYYY-MM-DD` format |\n| `createdAt` | string | Timestamp when the book was created (`date-time`) |\n| `updatedAt` | string | Timestamp when the book was last updated (`date-time`) |\n\n### 🧪 Tests Performed:\n\n- **TC01:** Response matches the expected JSON schema.\n    \n- **TC02:** Book title matches the updated value.\n    \n- **TC03:** Book author matches the updated value.\n    \n- **TC04:** Book ISBN matches the updated value.\n    \n- **TC05:** Book release date matches the updated value.\n    \n- **TC06:** Status code is **200 OK**.\n    \n- **TC07:** Response time is **< 200ms**"
+					},
+					"response": [
+						{
+							"name": "Get Book After Update",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/books/{{book_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"{{book_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "207"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"cf-c1yTjbWF1lWMSUuwsfu7J+eUTTI\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:04:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"title\": \"Pagac Union\",\n    \"author\": \"Rex Ernser\",\n    \"isbn\": \"6314846668\",\n    \"releaseDate\": \"2023-10-10\",\n    \"createdAt\": \"2025-05-08T22:03:49.413Z\",\n    \"updatedAt\": \"2025-05-08T22:04:45.895Z\",\n    \"id\": 63\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Delete Book (TC01) _ Status code is 204\", () => pm.response.to.have.status(204)); // Correct status for a successful DELETE\r",
+									"pm.test(\"Delete Book (TC02) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{book_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						},
+						"description": "**Description:** Delete a book entry from the system using its unique ID.\n\n---\n\n### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| `Content-Type` | `application/json` |\n| `g-token` | `ROM831ESV` |\n\n---\n\n### 📤 Request Parameters (Path)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `book_id` | integer | The unique identifier of the book |\n\n---\n\n### 🧪 Tests Performed:\n\n- **TC01:** The response status code is **204 No Content** (indicating the book was successfully deleted).\n    \n- **TC02:** The response time is **< 200ms**."
+					},
+					"response": [
+						{
+							"name": "Delete Book",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/books/{{book_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"{{book_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:04:59 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Get Book After Deletion",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🧪 General Response Tests for Get Book After Deletion\r",
+									"pm.test(\"Get Book After Deletion (TC01) _ Status code is 404\", () => pm.response.to.have.status(404)); // Book should not exist, expecting 404 Not Found\r",
+									"pm.test(\"Get Book After Deletion (TC02) _ Response time is less than 200ms\", () => pm.expect(pm.response.responseTime).to.be.below(200)); // Response time should be below 200ms\r",
+									"\r",
+									"// 🧪 Validate error message \r",
+									"pm.test(\"Get Book After Deletion (TC03) _ Error message indicates non-existence\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.message).to.eql(\"Book not found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{book_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						},
+						"description": "**Description:** Attempt to retrieve a book after it has been deleted. This should return a **404 Not Found** response since the book no longer exists in the system.\n\n---\n\n### 🔐 Headers:\n\n| Key | Value |\n| --- | --- |\n| `Content-Type` | `application/json` |\n| `g-token` | `ROM831ESV` |\n\n---\n\n### 📤 Request Parameters (Path)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `book_id` | integer | The unique identifier of the book |\n\n---\n\n### 🧪 Tests Performed:\n\n- **TC01:** The response status code is **404 Not Found** (indicating the book does not exist).\n    \n- **TC02:** The response time is **< 200ms**.\n    \n- **TC03:** The error message should indicate that the book was not found.\n    \n\n---\n\n### ✅ Response Body (404 Not Found)\n\n| Key | Type | Description |\n| --- | --- | --- |\n| `message` | string | \"Book not found\" message indicating the book is no longer in the system. |"
+					},
+					"response": [
+						{
+							"name": "Get Book After Deletion",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/books/{{book_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"{{book_id}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "33"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"21-scWDTMDC1xwvJ1YlcV1rbeay1i4\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 22:05:05 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book not found\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Households",
+			"item": [
+				{
+					"name": "Create Household",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Extract response data\r",
+									"let response = pm.response.json();\r",
+									"let responseName = response.name;\r",
+									"\r",
+									"// ✅ Extract expected value from the request body\r",
+									"let requestBody = JSON.parse(pm.request.body.raw);\r",
+									"let expectedName = requestBody.name;\r",
+									"\r",
+									"pm.collectionVariables.set(\"householdName\", expectedName);\r",
+									"\r",
+									"// ✅ Save household ID to collection variable\r",
+									"pm.collectionVariables.set(\"householdId\", response.id);\r",
+									"\r",
+									"// 🧾 Define response schema\r",
+									"const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"        id: { type: \"integer\" },\r",
+									"        name: { type: \"string\" },\r",
+									"        createdAt: { type: \"string\", format: \"date-time\" },\r",
+									"        updatedAt: { type: \"string\", format: \"date-time\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"pm.test(\"Create Household (TC01) _ Status code is 201\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Create Household (TC02) _ Response time is less than 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Create Household (TC03) _ Response schema is valid\", () => {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Create Household (TC04) _ Name matches request body\", () => {\r",
+									"    pm.expect(responseName).to.eql(expectedName);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{$randomProductName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/households",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households"
+							]
+						},
+						"description": "**Description**\n\nCreates a new household with a specified name. Requires authentication via a token provided in the headers.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the payload you are sending. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| name | String | The name of the household to be created. |\n\n---\n\n### **Success 201**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the newly created household. |\n| name | String | Name of the newly created household. |\n| createdAt | Date | Timestamp of when the household was created. |\n| updatedAt | Date | Timestamp of the last update. |"
+					},
+					"response": [
+						{
+							"name": "Create Household",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Ergonomic Granite Car\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/households",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"households"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "138"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"8a-qoxxypgfY01ANQ0p5s/Y6vWXK3w\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:20:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Ergonomic Granite Car\",\n    \"createdAt\": \"2025-05-07T16:20:10.605Z\",\n    \"updatedAt\": \"2025-05-07T16:20:10.605Z\",\n    \"id\": 27\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Household after creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Extract response data\r",
+									"let response = pm.response.json();\r",
+									"let responseName = response.name;\r",
+									"let responseId = response.id;\r",
+									"\r",
+									"// ✅ Get expected values from collection variables\r",
+									"let expectedName = pm.collectionVariables.get(\"householdName\");\r",
+									"let expectedId = parseInt(pm.collectionVariables.get(\"householdId\")); // Ensure number type\r",
+									"\r",
+									"// 🧾 Define schema\r",
+									"const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"        id: { type: \"integer\" },\r",
+									"        name: { type: \"string\" },\r",
+									"        createdAt: { type: \"string\", format: \"date-time\" },\r",
+									"        updatedAt: { type: \"string\", format: \"date-time\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"pm.test(\"Get Household (TC01) _ Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household (TC02) _ Response time is under 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household (TC03) _ Schema is valid\", () => {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household (TC04) _ Name matches created value\", () => {\r",
+									"    pm.expect(responseName).to.eql(expectedName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household (TC05) _ ID matches created ID\", () => {\r",
+									"    pm.expect(responseId).to.eql(expectedId);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/households/{{householdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households",
+								"{{householdId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves the details of a specific household by its ID. Requires a valid authentication token in the header.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the household to retrieve. |\n\n---\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the household. |\n| name | String | Name of the household. |\n| createdAt | Date | Timestamp of when the household was created. |\n| updatedAt | Date | Timestamp of the last update. |"
+					},
+					"response": [
+						{
+							"name": "Get Household after creation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/households/{{householdId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"households",
+										"{{householdId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "138"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"8a-qoxxypgfY01ANQ0p5s/Y6vWXK3w\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:20:19 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Intelligent Metal Towels\",\n    \"createdAt\": \"2025-05-07T16:20:10.605Z\",\n    \"updatedAt\": \"2025-05-07T16:20:10.605Z\",\n    \"id\": 27\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Household (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store response data\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"// ✅ Extract fields from the response\r",
+									"let responseName = response.name;\r",
+									"let responseId = response.id;\r",
+									"\r",
+									"// ✅ Save updated name to collection variable\r",
+									"pm.collectionVariables.set(\"householdNameUpdated\", responseName);\r",
+									"\r",
+									"// ✅ Get expected name from request body\r",
+									"let expectedName = pm.request.body && JSON.parse(pm.request.body.raw).name;\r",
+									"\r",
+									"// 🧾 Define expected schema\r",
+									"const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"        id: { type: \"integer\" },\r",
+									"        name: { type: \"string\" },\r",
+									"        createdAt: { type: \"string\", format: \"date-time\" },\r",
+									"        updatedAt: { type: \"string\", format: \"date-time\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Run tests\r",
+									"pm.test(\"Update Household (TC01) _ Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update Household (TC02) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update Household (TC03) _ Response schema is valid\", () => {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update Household (TC04) _ Name is not null or undefined\", () => {\r",
+									"    pm.expect(responseName).to.not.be.null;\r",
+									"    pm.expect(responseName).to.not.be.undefined;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update Household (TC05) _ Name matches the updated request value\", () => {\r",
+									"    pm.expect(responseName).to.eql(expectedName);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{$randomProductName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/households/{{householdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households",
+								"{{householdId}}"
+							]
+						},
+						"description": "### **Description**\n\nUpdates the name of an existing household identified by its ID. Requires a valid authentication token in the header. This is a full update using the `PUT` method.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the payload. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the household to update. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| name | String | The new name to update the household with. |\n\n---\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the updated household. |\n| name | String | Updated name of the household. |\n| createdAt | Date | Original creation timestamp. |\n| updatedAt | Date | Timestamp of when the household was updated. |"
+					},
+					"response": [
+						{
+							"name": "Update Household (PUT)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Unbranded Frozen Pizza\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3000/households/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"households",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "135"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"87-IxgyppW02Fbjh2FTLtcmK8OY3bc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:20:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Unbranded Frozen Pizza\",\n    \"createdAt\": \"2025-05-07T16:20:10.605Z\",\n    \"updatedAt\": \"2025-05-07T16:20:21.492Z\",\n    \"id\": 27\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Household after update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store response data\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"// ✅ Extract fields\r",
+									"let householdName = response.name;\r",
+									"\r",
+									"// ✅ Get expected updated name from collection variables\r",
+									"let expectedHouseholdName = pm.collectionVariables.get(\"householdNameUpdated\");\r",
+									"\r",
+									"// 🧾 Define expected schema\r",
+									"const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"        id: { type: \"integer\" },\r",
+									"        name: { type: \"string\" },\r",
+									"        createdAt: { type: \"string\", format: \"date-time\" },\r",
+									"        updatedAt: { type: \"string\", format: \"date-time\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"pm.test(\"Get Household After Update (TC01) _ Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household After Update (TC02) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household After Update (TC03) _ Response schema is valid\", () => {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household After Update (TC04) _ Household name matches the updated value\", () => {\r",
+									"    pm.expect(householdName).to.eql(expectedHouseholdName);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/households/{{householdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households",
+								"{{householdId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves the updated details of a specific household by its ID. Useful for verifying changes made through an update operation. Requires a valid authentication token in the header.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the household to retrieve. |\n\n---\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the household. |\n| name | String | Name of the household (updated). |\n| createdAt | Date | Timestamp of when the household was created. |\n| updatedAt | Date | Timestamp of the most recent update. |"
+					},
+					"response": [
+						{
+							"name": "Get Household after update",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/households/{{householdId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"households",
+										"{{householdId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "135"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"87-IxgyppW02Fbjh2FTLtcmK8OY3bc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:20:23 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Gorgeous Frozen Mouse\",\n    \"createdAt\": \"2025-05-07T16:20:10.605Z\",\n    \"updatedAt\": \"2025-05-07T16:20:21.492Z\",\n    \"id\": 27\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Household",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🧪 Tests\r",
+									"pm.test(\"Delete Household (TC01) _ Status code is 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Delete Household (TC02) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/households/{{householdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households",
+								"{{householdId}}"
+							]
+						},
+						"description": "### **Description**\n\nDeletes an existing household identified by its ID. This operation is irreversible. Requires a valid authentication token in the header.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the household to delete. |\n\n---\n\n### **Success 204**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| — | — | No response body is returned upon successful deletion. |"
+					},
+					"response": [
+						{
+							"name": "Delete Household",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/households/{{householdId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"households",
+										"{{householdId}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:20:50 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Get Household after Deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🧪 Tests\r",
+									"pm.test(\"Get Household After Deletion (TC01) _ Status code is 404\", () => {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Household After Deletion (TC02) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Validate error message \r",
+									"pm.test(\"Get Household After Deletion (TC03) _ Error message indicates non-existence\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.message).to.eql(\"Household not found\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/households/{{householdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"households",
+								"{{householdId}}"
+							]
+						},
+						"description": "### **Description**\n\nAttempts to retrieve a household by its ID after it has been deleted. Since the household no longer exists, the server returns a 404 Not Found response. Authentication is still required.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the household to retrieve. |\n\n---\n\n### **Error 404**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| message | String | Indicates the household was not found. |"
+					},
+					"response": [
+						{
+							"name": "Get Household after Deletion",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/households/{{householdId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"households",
+										"{{householdId}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "38"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"26-v4aOsgDFZWLbBLdtaD1li4L2uMc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:21:16 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Household not found\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🔁 Parse response\r",
+									"let user = pm.response.json();\r",
+									"\r",
+									"// 🆔 Save user ID for future use\r",
+									"pm.collectionVariables.set(\"userId\", user.id);\r",
+									"\r",
+									"// 🧾 Save expected values from request to collection variables\r",
+									"let requestBody = JSON.parse(pm.request.body.raw);\r",
+									"pm.collectionVariables.set(\"expectedUserFirstName\", requestBody.firstName);\r",
+									"pm.collectionVariables.set(\"expectedUserLastName\", requestBody.lastName);\r",
+									"pm.collectionVariables.set(\"expectedUserEmail\", requestBody.email);\r",
+									"\r",
+									"// 🧪 Schema validation\r",
+									"const userSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"firstName\": { \"type\": \"string\" },\r",
+									"        \"lastName\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"createdAt\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"        \"updatedAt\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"firstName\", \"lastName\", \"email\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"pm.test(\"Create User (TC01) _ Response matches schema\", () => {\r",
+									"    pm.response.to.have.jsonSchema(userSchema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Field validation\r",
+									"pm.test(\"Create User (TC02) _ First name matches\", () => {\r",
+									"    pm.expect(user.firstName).to.eql(pm.collectionVariables.get(\"expectedUserFirstName\"));\r",
+									"});\r",
+									"pm.test(\"Create User (TC03) _ Last name matches\", () => {\r",
+									"    pm.expect(user.lastName).to.eql(pm.collectionVariables.get(\"expectedUserLastName\"));\r",
+									"});\r",
+									"pm.test(\"Create User (TC04) _ Email matches\", () => {\r",
+									"    pm.expect(user.email).to.eql(pm.collectionVariables.get(\"expectedUserEmail\"));\r",
+									"});\r",
+									"\r",
+									"// 🧪 General response tests\r",
+									"pm.test(\"Create User (TC05) _ Status code is 201\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"pm.test(\"Create User (TC06) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"{{$randomFirstName}}\",\n  \"lastName\": \"{{$randomLastName}}\",\n  \"email\": \"{{$randomEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "### **Description**\n\nCreates a new user by providing first name, last name, and email. Requires a valid authentication token in the header.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the payload. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| firstName | String | First name of the user. |\n| lastName | String | Last name of the user. |\n| email | String | Email address of the user. |\n\n---\n\n### **Success 201**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the newly created user. |\n| firstName | String | First name of the user. |\n| lastName | String | Last name of the user. |\n| email | String | Email address of the user. |\n| createdAt | Date | Timestamp of when the user was created. |\n| updatedAt | Date | Timestamp of the last update. |"
+					},
+					"response": [
+						{
+							"name": "Create User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Ezequiel\",\n    \"lastName\": \"Torp\",\n    \"email\": \"Dejuan_Lemke29@gmail.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "188"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"bc-IARsuiUerfdeJHkMfbs4H8MNCXc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"firstName\": \"Ezequiel\",\n    \"lastName\": \"Torp\",\n    \"email\": \"Dejuan_Lemke29@gmail.com\",\n    \"createdAt\": \"2025-05-07T16:35:22.339Z\",\n    \"updatedAt\": \"2025-05-07T16:35:22.339Z\",\n    \"id\": 39\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User after creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🔁 Parse response\r",
+									"let user = pm.response.json();\r",
+									"\r",
+									"// 🧾 Get expected values\r",
+									"let expectedFirstName = pm.collectionVariables.get(\"expectedUserFirstName\");\r",
+									"let expectedLastName = pm.collectionVariables.get(\"expectedUserLastName\");\r",
+									"let expectedEmail = pm.collectionVariables.get(\"expectedUserEmail\");\r",
+									"\r",
+									"// 🧪 Schema validation\r",
+									"const userSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"firstName\": { \"type\": \"string\" },\r",
+									"        \"lastName\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"createdAt\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"        \"updatedAt\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"firstName\", \"lastName\", \"email\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"pm.test(\"Get User (TC01) _ Response matches schema\", () => {\r",
+									"    pm.response.to.have.jsonSchema(userSchema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Field checks\r",
+									"pm.test(\"Get User (TC02) _ First name matches\", () => {\r",
+									"    pm.expect(user.firstName).to.eql(expectedFirstName);\r",
+									"});\r",
+									"pm.test(\"Get User (TC03) _ Last name matches\", () => {\r",
+									"    pm.expect(user.lastName).to.eql(expectedLastName);\r",
+									"});\r",
+									"pm.test(\"Get User (TC04) _ Email matches\", () => {\r",
+									"    pm.expect(user.email).to.eql(expectedEmail);\r",
+									"});\r",
+									"\r",
+									"// 🧪 General response tests\r",
+									"pm.test(\"Get User (TC05) _ Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Get User (TC06) _ Response time is below 200ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves the details of a user by their ID immediately after creation. Requires a valid authentication token.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the user. |\n\n---\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the user. |\n| firstName | String | First name of the user. |\n| lastName | String | Last name of the user. |\n| email | String | Email address of the user. |\n| createdAt | Date | Timestamp of when the user was created. |\n| updatedAt | Date | Timestamp of the last update. |"
+					},
+					"response": [
+						{
+							"name": "Get User after creation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "188"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"bc-IARsuiUerfdeJHkMfbs4H8MNCXc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"firstName\": \"Ezequiel\",\n    \"lastName\": \"Torp\",\n    \"email\": \"Dejuan_Lemke29@gmail.com\",\n    \"createdAt\": \"2025-05-07T16:35:22.339Z\",\n    \"updatedAt\": \"2025-05-07T16:35:22.339Z\",\n    \"id\": 39\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Store request body variables into collection variables\r",
+									"let requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+									"\r",
+									"// Extract values from the request body\r",
+									"let requestFirstName = requestBody.firstName;\r",
+									"let requestLastName = requestBody.lastName;\r",
+									"let requestEmail = requestBody.email;\r",
+									"\r",
+									"// Save request body values to collection variables for future use\r",
+									"pm.collectionVariables.set(\"updatedUserFirstName\", requestFirstName);\r",
+									"pm.collectionVariables.set(\"updatedUserLastName\", requestLastName);\r",
+									"pm.collectionVariables.set(\"updatedUserEmail\", requestEmail);\r",
+									"\r",
+									"// 🧾 Extract the response data\r",
+									"let user = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract response fields for easier access\r",
+									"let userFirstName = user.firstName;\r",
+									"let userLastName = user.lastName;\r",
+									"let userEmail = user.email;\r",
+									"let userId = user.id;\r",
+									"\r",
+									"// Store the user ID for further use\r",
+									"pm.collectionVariables.set(\"userId\", userId);\r",
+									"\r",
+									"// 🧪 Schema validation\r",
+									"const userSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"firstName\": { \"type\": \"string\" },\r",
+									"        \"lastName\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"createdAt\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"        \"updatedAt\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"firstName\", \"lastName\", \"email\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Test schema validity\r",
+									"pm.test(\"Update User (TC01) _ Response matches schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(userSchema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Test for updated fields\r",
+									"pm.test(\"Update User (TC02) _ First name matches updated value\", function() {\r",
+									"    pm.expect(userFirstName).to.eql(requestFirstName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update User (TC03) _ Last name matches updated value\", function() {\r",
+									"    pm.expect(userLastName).to.eql(requestLastName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update User (TC04) _ Email matches updated value\", function() {\r",
+									"    pm.expect(userEmail).to.eql(requestEmail);\r",
+									"});\r",
+									"\r",
+									"// 🧪 General response tests\r",
+									"pm.test(\"Update User (TC05) _ Status code is 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update User (TC06) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"{{$randomFirstName}}\",\n  \"lastName\": \"{{$randomLastName}}\",\n  \"email\": \"{{$randomEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "### **Description**\n\nUpdates user details including first name, last name, and email by ID. Requires a valid authentication token.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the user. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| firstName | String | Updated first name of the user. |\n| lastName | String | Updated last name of the user. |\n| email | String | Updated email of the user. |\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the user. |\n| firstName | String | Updated first name of the user. |\n| lastName | String | Updated last name of the user. |\n| email | String | Updated email address. |\n| createdAt | Date | Timestamp of creation. |\n| updatedAt | Date | Timestamp of the most recent update. |"
+					},
+					"response": [
+						{
+							"name": "Update User (PUT)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Garland\",\n    \"lastName\": \"Blick\",\n    \"email\": \"Consuelo35@gmail.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "184"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b8-o8ooKHVqJb6/We9Sb0+1D8kXMpQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:35 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"firstName\": \"Garland\",\n    \"lastName\": \"Blick\",\n    \"email\": \"Consuelo35@gmail.com\",\n    \"createdAt\": \"2025-05-07T16:35:22.339Z\",\n    \"updatedAt\": \"2025-05-07T16:35:35.603Z\",\n    \"id\": 39\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User after update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Store response data from Get User after update into variables\r",
+									"let user = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract fields from the response data\r",
+									"let updatedFirstName = user.firstName;\r",
+									"let updatedLastName = user.lastName;\r",
+									"let updatedEmail = user.email;\r",
+									"let updatedUserId = user.id;\r",
+									"\r",
+									"\r",
+									"// 🧪 Schema validation\r",
+									"const userSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"firstName\": { \"type\": \"string\" },\r",
+									"        \"lastName\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"createdAt\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"        \"updatedAt\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"firstName\", \"lastName\", \"email\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Test schema validity\r",
+									"pm.test(\"Get User After Update (TC01) _ Response matches schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(userSchema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Test if the updated user values are correct\r",
+									"pm.test(\"Get User After Update (TC02) _ First name matches updated value\", function() {\r",
+									"    pm.expect(updatedFirstName).to.eql(pm.collectionVariables.get(\"updatedUserFirstName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get User After Update (TC03) _ Last name matches updated value\", function() {\r",
+									"    pm.expect(updatedLastName).to.eql(pm.collectionVariables.get(\"updatedUserLastName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get User After Update (TC04) _ Email matches updated value\", function() {\r",
+									"    pm.expect(updatedEmail).to.eql(pm.collectionVariables.get(\"updatedUserEmail\"));\r",
+									"});\r",
+									"\r",
+									"// 🧪 General response tests\r",
+									"pm.test(\"Get User After Update (TC05) _ Status code is 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get User After Update (TC06) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves the updated details of a user by their ID after performing an update. Requires authentication.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the user. |\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the user. |\n| firstName | String | Updated first name of the user. |\n| lastName | String | Updated last name of the user. |\n| email | String | Updated email address. |\n| createdAt | Date | Timestamp of creation. |\n| updatedAt | Date | Timestamp of the most recent update. |"
+					},
+					"response": [
+						{
+							"name": "Get User after update",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "184"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b8-o8ooKHVqJb6/We9Sb0+1D8kXMpQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"firstName\": \"Garland\",\n    \"lastName\": \"Blick\",\n    \"email\": \"Consuelo35@gmail.com\",\n    \"createdAt\": \"2025-05-07T16:35:22.339Z\",\n    \"updatedAt\": \"2025-05-07T16:35:35.603Z\",\n    \"id\": 39\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"// Status code check: 204 (No Content) is typically returned on successful deletion\r",
+									"pm.test(\"Delete User (TC01) _ Status code is 204\", function() {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Response time check\r",
+									"pm.test(\"Delete User (TC02) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "### **Description**\n\nDeletes an existing user by their ID. This action is permanent. Requires a valid authentication token in the header.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the user. |\n\n---\n\n### **Success 204**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| — | — | No response body is returned upon successful deletion. |"
+					},
+					"response": [
+						{
+							"name": "Delete User",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:45 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Get User after Deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get User after Deletion (TC01) _ Status code is 404\", function() {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"// Check response time is less than 200ms for the GET request after deletion\r",
+									"pm.test(\"Get User after Deletion (TC02) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Validate error message \r",
+									"pm.test(\"Get User after Deletion (TC03) _ Error message indicates non-existence\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.message).to.eql(\"User not found\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "### **Description**\n\nAttempts to retrieve a user by ID after deletion. Returns a `404 Not Found` if the user no longer exists.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`.  <br>**Default value:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the user. |\n\n---\n\n### **Error 404**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| message | String | Indicates the user was not found. |"
+					},
+					"response": [
+						{
+							"name": "Get User after Deletion",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "33"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"21-ZGVnntUV23OO3IYyawjFZsL32fI\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 16:35:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User not found\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Wishlists",
+			"item": [
+				{
+					"name": "Create Wishlist",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// ✅ Get the highest book ID from collection variable\r",
+									"let maxBookId = pm.collectionVariables.get(\"book_id\"); // Assuming 'book_id' is the highest available book ID\r",
+									"\r",
+									"// ✅ Validate if book_id is set\r",
+									"if (!maxBookId) {\r",
+									"    pm.test(\"Book ID collection variable not set\", () => {\r",
+									"        throw new Error(\"Please ensure the book_id collection variable is set before creating a wishlist.\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// ✅ Generate a random number of books (between 1 and 5)\r",
+									"let numberOfBooks = Math.floor(Math.random() * 5) + 1; // Random number between 1 and 5\r",
+									"\r",
+									"// ✅ Create a list of book IDs (from 1 to the maxBookId)\r",
+									"let bookIds = [];\r",
+									"for (let i = 0; i < numberOfBooks; i++) {\r",
+									"    let randomBookId = Math.floor(Math.random() * maxBookId) + 1; // Random book ID between 1 and maxBookId\r",
+									"    bookIds.push(randomBookId);\r",
+									"}\r",
+									"\r",
+									"// ✅ Save the generated book IDs for use in the request body\r",
+									"pm.collectionVariables.set(\"generatedBookIds\", JSON.stringify(bookIds)); // Save the book IDs as a string for later use\r",
+									"\r",
+									"// ✅ Optionally, generate a random wishlist name (use any method for this)\r",
+									"let wishlistName = pm.variables.replaceIn(\"{{$randomUserName}}\");  // Using Postman's random user name variable\r",
+									"\r",
+									"// ✅ Save the wishlist name for use in the request body\r",
+									"pm.collectionVariables.set(\"wishlistName\", wishlistName);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Store wishlist ID\r",
+									"var wishlist_id = pm.response.json().id;\r",
+									"pm.collectionVariables.set(\"wishlistId\", wishlist_id);\r",
+									"\r",
+									"// ✅ Store response data in variables\r",
+									"let wishlist = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field for easier access\r",
+									"let wishlistName = wishlist.name;\r",
+									"let wishlistBooks = wishlist.books;\r",
+									"\r",
+									"// ✅ Retrieve expected values from collection variables\r",
+									"let expectedWishlistName = pm.collectionVariables.get(\"wishlistName\");\r",
+									"let expectedWishlistBooks = JSON.parse(pm.collectionVariables.get(\"generatedBookIds\")); // Ensure this is parsed correctly\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"name\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"books\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"integer\"\r",
+									"            }\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"name\", \"books\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Create Wishlist ( TC01 ) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// ✅ Test if the books in the response match the generated book IDs\r",
+									"pm.test(\"Create Wishlist (TC01) _ Generated book IDs match the response\", function() {\r",
+									"    let responseBookIds = wishlist.books; // Extract book IDs from the response\r",
+									"    \r",
+									"    // Check if the response book IDs are the same as the generated book IDs\r",
+									"    pm.expect(responseBookIds).to.have.members(expectedWishlistBooks);\r",
+									"});\r",
+									"\r",
+									"// ✅ Test if the wishlist name in the response matches the generated name\r",
+									"pm.test(\"Create Wishlist (TC02) _ Wishlist name matches the generated value\", function() {\r",
+									"    pm.expect(wishlist.name).to.eql(expectedWishlistName); // Compare the name from the response with the generated name\r",
+									"});\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Create Wishlist (TC03) _ Status code is 201\", function() {\r",
+									"    pm.response.to.have.status(201); // Ensure the status code is 201 (Created)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Create Wishlist (TC04) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200); // Ensure the response time is below 200ms\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{wishlistName}}\",\n  \"books\": {{generatedBookIds}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wishlists",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists"
+							]
+						},
+						"description": "### **Description**\n\nCreates a new wishlist with a name and associated book IDs. Requires a valid authentication token.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | Sets the format of the request. Must be `application/json`. **Default:** application/json |\n| g-token | String | Authentication token required to authorize the request. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| name | String | Name of the wishlist. |\n| books | Integer\\[\\] | Array of book IDs to include. |\n\n---\n\n### **Success 201**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the wishlist. |\n| name | String | Name of the wishlist. |\n| books | Integer\\[\\] | List of book IDs included. |\n| createdAt | Date | Timestamp of creation. |\n| updatedAt | Date | Timestamp of the last update. |"
+					},
+					"response": [
+						{
+							"name": "Create Wishlist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Sarah82\",\n    \"books\": [\n        37,\n        26,\n        17\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wishlists",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "162"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a2-xE2jSnCjCufvESALe0C+0HSiWbw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:15 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Sarah82\",\n    \"books\": [\n        37,\n        26,\n        17\n    ],\n    \"createdAt\": \"2025-05-07T17:20:15.911Z\",\n    \"updatedAt\": \"2025-05-07T17:20:15.911Z\",\n    \"id\": 58\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Wishlist after creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Get wishlist ID from collection variable (set after Create Wishlist)\r",
+									"let wishlist_id = pm.collectionVariables.get(\"wishlistId\");\r",
+									"\r",
+									"// ✅ Store response data in variables\r",
+									"let wishlist = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract each field for easier access\r",
+									"let wishlistName = wishlist.name;\r",
+									"let wishlistBooks = wishlist.books;\r",
+									"\r",
+									"// ✅ Retrieve expected values from collection variables\r",
+									"let expectedWishlistName = pm.collectionVariables.get(\"wishlistName\");\r",
+									"let expectedWishlistBooks = JSON.parse(pm.collectionVariables.get(\"generatedBookIds\")); // Ensure this is parsed correctly\r",
+									"\r",
+									"// 🧪 Tests\r",
+									"\r",
+									"// 🧾 Define the schema for the response structure\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": {\r",
+									"            \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"name\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"books\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"integer\"\r",
+									"            }\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"name\", \"books\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate the response against the schema\r",
+									"pm.test(\"Get Wishlist after Creation ( TC01 ) _ Response is valid according to schema\", function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// ✅ Test if the wishlist ID in the response matches the created wishlist ID\r",
+									"pm.test(\"Get Wishlist after Creation ( TC02 ) _ Wishlist ID matches\", function() {\r",
+									"    pm.expect(wishlist.id).to.eql(Number(wishlist_id)); // Compare the ID from the response with the created wishlist ID\r",
+									"});\r",
+									"\r",
+									"// ✅ Test if the books in the response match the generated book IDs\r",
+									"pm.test(\"Get Wishlist after Creation ( TC03 ) _ Generated book IDs match the response\", function() {\r",
+									"    let responseBookIds = wishlist.books; // Extract book IDs from the response\r",
+									"    \r",
+									"    // Check if the response book IDs are the same as the generated book IDs\r",
+									"    pm.expect(responseBookIds).to.have.members(expectedWishlistBooks);\r",
+									"});\r",
+									"\r",
+									"// ✅ Test if the wishlist name in the response matches the generated name\r",
+									"pm.test(\"Get Wishlist after Creation ( TC04 ) _ Wishlist name matches the generated value\", function() {\r",
+									"    pm.expect(wishlist.name).to.eql(expectedWishlistName); // Compare the name from the response with the generated name\r",
+									"});\r",
+									"\r",
+									"// 🧪 General Response Tests\r",
+									"pm.test(\"Get Wishlist after Creation ( TC05 ) _ Status code is 200\", function() {\r",
+									"    pm.response.to.have.status(200); // Ensure the status code is 200 (OK)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Wishlist after Creation ( TC06 ) _ Response time is less than 200ms\", function() {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200); // Ensure the response time is below 200ms\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists",
+								"{{wishlistId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves a newly created wishlist by ID. Requires a valid token.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | `application/json` |\n| g-token | String | Authentication token |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | The unique ID of the wishlist. |\n\n---\n\n### **Success 200**\n\nSame fields as **Create Wishlist** response."
+					},
+					"response": [
+						{
+							"name": "Get Wishlist after creation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists",
+										"{{wishlistId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "162"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a2-xE2jSnCjCufvESALe0C+0HSiWbw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Sarah82\",\n    \"books\": [\n        37,\n        26,\n        17\n    ],\n    \"createdAt\": \"2025-05-07T17:20:15.911Z\",\n    \"updatedAt\": \"2025-05-07T17:20:15.911Z\",\n    \"id\": 58\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Wishlist (PUT)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// ✅ Get the highest book ID from collection variable\r",
+									"let maxBookId = pm.collectionVariables.get(\"book_id\"); // Assuming 'updatedBook_id' is the highest available book ID\r",
+									"\r",
+									"// ✅ Validate if updatedBook_id is set\r",
+									"if (!maxBookId) {\r",
+									"    pm.test(\"Updated Book ID collection variable not set\", () => {\r",
+									"        throw new Error(\"Please ensure the updatedBook_id collection variable is set before creating a wishlist.\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// ✅ Generate a random number of books (between 1 and 5)\r",
+									"let numberOfBooks = Math.floor(Math.random() * 5) + 1; // Random number between 1 and 5\r",
+									"\r",
+									"// ✅ Create a list of book IDs (from 1 to the maxBookId)\r",
+									"let bookIds = [];\r",
+									"for (let i = 0; i < numberOfBooks; i++) {\r",
+									"    let randomBookId = Math.floor(Math.random() * maxBookId) + 1; // Random book ID between 1 and maxBookId\r",
+									"    bookIds.push(randomBookId);\r",
+									"}\r",
+									"\r",
+									"// ✅ Save the generated book IDs for use in the request body\r",
+									"pm.collectionVariables.set(\"updatedGeneratedBookIds\", JSON.stringify(bookIds)); // Save the book IDs as a string for later use\r",
+									"\r",
+									"// ✅ Optionally, generate a random wishlist name (use any method for this)\r",
+									"let updatedWishlistName = pm.variables.replaceIn(\"{{$randomUserName}}\");  // Using Postman's random user name variable\r",
+									"\r",
+									"// ✅ Save the updated wishlist name for use in the request body\r",
+									"pm.collectionVariables.set(\"updatedWishlistName\", updatedWishlistName);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🛑 Store updated wishlist ID\r",
+									"var wishlist_id = pm.response.json().id;\r",
+									"pm.collectionVariables.set(\"wishlistId\", wishlist_id);\r",
+									"\r",
+									"// ✅ Store response data\r",
+									"let wishlist = pm.response.json();\r",
+									"let wishlistName = wishlist.name;\r",
+									"let wishlistBooks = wishlist.books;\r",
+									"\r",
+									"// ✅ Retrieve expected updated values from collection variables\r",
+									"let expectedWishlistName = pm.collectionVariables.get(\"updatedWishlistName\");\r",
+									"let expectedWishlistBooks = JSON.parse(pm.collectionVariables.get(\"updatedGeneratedBookIds\"));\r",
+									"\r",
+									"// 🧾 Define the schema\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"books\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": { \"type\": \"integer\" }\r",
+									"        },\r",
+									"        \"createdAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        },\r",
+									"        \"updatedAt\": {\r",
+									"            \"type\": \"string\",\r",
+									"            \"format\": \"date-time\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"name\", \"books\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"// 🧪 Validate schema\r",
+									"pm.test(\"Update Wishlist (TC01) _ Response is valid according to schema\", function () {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// ✅ Validate updated book IDs\r",
+									"pm.test(\"Update Wishlist (TC02) _ Updated book IDs match response\", function () {\r",
+									"    pm.expect(wishlistBooks).to.have.members(expectedWishlistBooks);\r",
+									"    pm.expect(wishlistBooks.length).to.eql(expectedWishlistBooks.length);\r",
+									"});\r",
+									"\r",
+									"// ✅ Validate updated name\r",
+									"pm.test(\"Update Wishlist (TC03) _ Wishlist name matches the updated value\", function () {\r",
+									"    pm.expect(wishlistName).to.eql(expectedWishlistName);\r",
+									"});\r",
+									"\r",
+									"// 🧪 General Response Checks\r",
+									"pm.test(\"Update Wishlist (TC04) _ Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Update Wishlist (TC05) _ Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{updatedWishlistName}}\",\n  \"books\": {{updatedGeneratedBookIds}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists",
+								"{{wishlistId}}"
+							]
+						},
+						"description": "### **Description**\n\nUpdates the name or the list of books for a wishlist by its ID. Requires authentication.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | `application/json` |\n| g-token | String | Authentication token |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the wishlist to update. |\n\n---\n\n### **Request Body**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| name | String | New name of the wishlist. |\n| books | Integer\\[\\] | Updated list of book IDs. |\n\n---\n\n### **Success 200**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the wishlist. |\n| name | String | Updated name of the wishlist. |\n| books | Integer\\[\\] | Updated list of book IDs. |\n| createdAt | Date | Original creation timestamp. |\n| updatedAt | Date | Timestamp of the update. |"
+					},
+					"response": [
+						{
+							"name": "Update Wishlist (PUT)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"name\": \"Samantha46\",\n    \"books\": [\n        24\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists",
+										"{{wishlistId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "149"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"95-CXoISaiokJI4L9JNhHoTsUBUu9k\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:25 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Samantha46\",\n    \"books\": [\n        24\n    ],\n    \"createdAt\": \"2025-05-07T17:20:15.911Z\",\n    \"updatedAt\": \"2025-05-07T17:20:25.153Z\",\n    \"id\": 58\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Wishlist after update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Store the response JSON\r",
+									"let wishlist = pm.response.json();\r",
+									"\r",
+									"// 🧾 Extract response fields\r",
+									"let wishlistId = wishlist.id;\r",
+									"let wishlistName = wishlist.name;\r",
+									"let wishlistBooks = wishlist.books;\r",
+									"\r",
+									"// ✅ Get expected values from collection variables\r",
+									"let expectedWishlistId = Number(pm.collectionVariables.get(\"wishlistId\"));\r",
+									"let expectedWishlistName = pm.collectionVariables.get(\"updatedWishlistName\");\r",
+									"let expectedBookIds = JSON.parse(pm.collectionVariables.get(\"updatedGeneratedBookIds\"));\r",
+									"\r",
+									"// 🧪 Schema validation\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"id\": { \"type\": \"integer\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"books\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": { \"type\": \"integer\" }\r",
+									"        },\r",
+									"        \"createdAt\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"        \"updatedAt\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"    },\r",
+									"    \"required\": [\"id\", \"name\", \"books\", \"createdAt\", \"updatedAt\"]\r",
+									"};\r",
+									"\r",
+									"pm.test(\"Get Wishlist (TC01) _ Response matches schema\", function () {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Check wishlist ID matches\r",
+									"pm.test(\"Get Wishlist (TC02) _ Wishlist ID matches expected value\", function () {\r",
+									"    pm.expect(wishlistId).to.eql(expectedWishlistId);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Check wishlist name matches updated value\r",
+									"pm.test(\"Get Wishlist (TC03) _ Wishlist name matches updated value\", function () {\r",
+									"    pm.expect(wishlistName).to.eql(expectedWishlistName);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Check updated book IDs match\r",
+									"pm.test(\"Get Wishlist (TC04) _ Books match updated generated IDs\", function () {\r",
+									"    pm.expect(wishlistBooks).to.have.members(expectedBookIds);\r",
+									"    pm.expect(wishlistBooks.length).to.eql(expectedBookIds.length);\r",
+									"});\r",
+									"\r",
+									"// ✅ General response checks\r",
+									"pm.test(\"Get Wishlist (TC05) _ Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Wishlist (TC06) _ Response time is under 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists",
+								"{{wishlistId}}"
+							]
+						},
+						"description": "### **Description**\n\nRetrieves a wishlist by ID after it has been updated. Requires token.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | `application/json` |\n| g-token | String | Authentication token |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the wishlist. |\n\n---\n\n### **Success 200**\n\nSame as the **Update Wishlist** response."
+					},
+					"response": [
+						{
+							"name": "Get Wishlist after update",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists",
+										"{{wishlistId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "149"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"95-CXoISaiokJI4L9JNhHoTsUBUu9k\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:35 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"Samantha46\",\n    \"books\": [\n        24\n    ],\n    \"createdAt\": \"2025-05-07T17:20:15.911Z\",\n    \"updatedAt\": \"2025-05-07T17:20:25.153Z\",\n    \"id\": 58\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Wishlist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Check status code is 200 or 204 (depending on API spec)\r",
+									"pm.test(\"Delete Wishlist (TC01) _ Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"// ✅ Confirm response time is acceptable\r",
+									"pm.test(\"Delete Wishlist (TC02) _ Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists",
+								"{{wishlistId}}"
+							]
+						},
+						"description": "### **Description**\n\nPermanently deletes a wishlist by its ID. Requires authentication.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | `application/json` |\n| g-token | String | Authentication token |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the wishlist to delete. |\n\n---\n\n### **Success 204**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| — | — | No response body returned. |"
+					},
+					"response": [
+						{
+							"name": "Delete Wishlist",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists",
+										"{{wishlistId}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Get Wishlist after Deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 🧪 Validate status code is 404 Not Found (or as per your API spec)\r",
+									"pm.test(\"Get Wishlist After Deletion (TC01) _ Status code is 404\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"// 🧪 Validate error message \r",
+									"pm.test(\"Get Wishlist After Deletion (TC02) _ Error message indicates non-existence\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.message).to.eql(\"Wishlist not found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "g-token",
+								"value": "ROM831ESV"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlists",
+								"{{wishlistId}}"
+							]
+						},
+						"description": "### **Description**\n\nChecks for a wishlist after it has been deleted. Should return a `404 Not Found`.\n\n---\n\n### **Header**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| Content-Type | String | `application/json` |\n| g-token | String | Authentication token |\n\n---\n\n### **Path Parameter**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| id | Number | ID of the deleted wishlist. |\n\n---\n\n### **Error 404**\n\n| Field | Type | Description |\n| --- | --- | --- |\n| message | String | \"Wishlist not found\" |"
+					},
+					"response": [
+						{
+							"name": "Get Wishlist after Deletion",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "g-token",
+										"value": "ROM831ESV"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlists/{{wishlistId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlists",
+										"{{wishlistId}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin, Accept-Encoding"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"25-vKPJ6piY9SvfRkJ/XHxwKNESMOw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 07 May 2025 17:20:47 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Wishlist not found\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "title",
+			"value": "Kaleb Isle"
+		},
+		{
+			"key": "author",
+			"value": "Guadalupe Pagac"
+		},
+		{
+			"key": "isbn",
+			"value": "1025395636"
+		},
+		{
+			"key": "releaseDate",
+			"value": "2011-09-19"
+		},
+		{
+			"key": "book_id",
+			"value": 63
+		},
+		{
+			"key": "bookTitle",
+			"value": "Erick Spur"
+		},
+		{
+			"key": "bookAuthor",
+			"value": "Suzanne Hartmann DVM"
+		},
+		{
+			"key": "bookIsbn",
+			"value": "9646355055"
+		},
+		{
+			"key": "bookReleaseDate",
+			"value": "2015-07-21"
+		},
+		{
+			"key": "bookTitleUpdate",
+			"value": "Mante Port"
+		},
+		{
+			"key": "bookAuthorUpdate",
+			"value": "Phyllis Paucek II"
+		},
+		{
+			"key": "bookIsbnUpdate",
+			"value": "5862860407"
+		},
+		{
+			"key": "bookReleaseDateUpdate",
+			"value": "2005-11-27"
+		},
+		{
+			"key": "householdId",
+			"value": 27
+		},
+		{
+			"key": "householdName",
+			"value": "Handcrafted Metal Sausages"
+		},
+		{
+			"key": "householdNameUpdated",
+			"value": "Awesome Wooden Shoes"
+		},
+		{
+			"key": "userId",
+			"value": 39
+		},
+		{
+			"key": "expectedUserFirstName",
+			"value": "Kristin"
+		},
+		{
+			"key": "expectedUserLastName",
+			"value": "Little"
+		},
+		{
+			"key": "expectedUserEmail",
+			"value": "Bobbie52@hotmail.com"
+		},
+		{
+			"key": "updatedUserFirstName",
+			"value": "Icie"
+		},
+		{
+			"key": "updatedUserLastName",
+			"value": "McClure"
+		},
+		{
+			"key": "updatedUserEmail",
+			"value": "Tyshawn61@yahoo.com"
+		},
+		{
+			"key": "generatedBookIds",
+			"value": "[32,62,45,30,26]"
+		},
+		{
+			"key": "wishlist_id",
+			"value": 56
+		},
+		{
+			"key": "wishlistName",
+			"value": "Werner.Greenholt"
+		},
+		{
+			"key": "updatedGeneratedBookIds",
+			"value": "[20,34]"
+		},
+		{
+			"key": "updatedWishlistName",
+			"value": "Rick62"
+		},
+		{
+			"key": "wishlistId",
+			"value": 58
+		}
+	]
+}

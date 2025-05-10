@@ -1,0 +1,1 @@
+newman run Library.postman_collection.json -e DEV.postman_environment.json -r htmlextra
