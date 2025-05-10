@@ -1,0 +1,5 @@
+Header
+G-TOKEN:ROM831ESV
+
+Basic Auth for del update and patch (both header and auth)
+admin:admin
