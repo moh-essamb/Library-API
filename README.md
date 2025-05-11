@@ -1,11 +1,9 @@
 
-# 📚 Node.js CRUD API with JSON Server
+🧪 Postman API Testing Project with Node.js Backend Support
+This project is centered around API testing and automation using Postman and Newman. It leverages a sample CRUD API backend (developed by Eng. Shady Ahmed) to run test cases for Books, Households, Users, and Wishlists.
 
-This project demonstrates a RESTful API built with Node.js and JSON Server. It includes endpoints for **Books**, **Households**, **Users**, and **Wishlists**, supporting full CRUD operations: **Create**, **Read**, **Update**, and **Delete**.
-
-> ⚠️ **Note:** The backend API was developed by **Eng.Shady Ahmed**(https://www.linkedin.com/in/shady-ahmed97/).  
-> 💡 The **Postman collection**, including **test scripts**, **dynamic variables**, and **Newman integration** for automation was created and maintained by Me.
-
+The backend is provided only as a reference server to support testing.
+✅ All Postman collections, dynamic variables, test scripts, and automation setup (Newman, batch scripts, Jenkins integration) were created and maintained by me to demonstrate effective and reusable API testing practices.
 ---
 
 ## 🚀 API Endpoints
