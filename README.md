@@ -1,10 +1,18 @@
 
-🧪 Postman API Testing Project with Node.js Backend Support
-This project is centered around API testing and automation using Postman and Newman. It leverages a sample CRUD API backend (developed by Eng. Shady Ahmed) to run test cases for Books, Households, Users, and Wishlists.
+# 🧪 Postman API Testing Project with Node.js Backend Support
 
-The backend is provided only as a reference server to support testing.
-✅ All Postman collections, dynamic variables, test scripts, and automation setup (Newman, batch scripts, Jenkins integration) were created and maintained by me to demonstrate effective and reusable API testing practices.
+This project is centered around **API testing and automation** using **Postman** and **Newman**. It leverages a sample **CRUD API backend** (developed by [Eng. Shady Ahmed](https://www.linkedin.com/in/shady-ahmed97/)) to run test cases for **Books**, **Households**, **Users**, and **Wishlists**.
+
 ---
+
+⚠️ **Note:**  
+The backend API is provided as a helper service to facilitate API testing.
+
+✅ **Highlights of This Testing Project:**
+- Designed Postman collection with dynamic variables and test scripts
+- Implemented tests for all CRUD operations and nested routes
+- Automated testing workflow using Newman (CLI) and batch scripts
+- Jenkins integration ready for CI/CD environments
 
 ## 🚀 API Endpoints
 
