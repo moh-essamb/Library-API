@@ -14,6 +14,9 @@ The backend API is provided as a helper service to facilitate API testing.
 - Automated testing workflow using Newman (CLI) and batch scripts
 - Jenkins integration ready for CI/CD environments
 
+
+📘 Postman Documentation:https://documenter.getpostman.com/view/32285312/2sB2j999kT
+
 ## 🚀 API Endpoints
 
 ### 📘 Books
